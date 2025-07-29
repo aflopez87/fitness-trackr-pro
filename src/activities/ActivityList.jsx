@@ -1,6 +1,7 @@
-import { useAuth } from "../auth/AuthContext";
 import useQuery from "../api/useQuery";
-import useMutation from "../api/useMutation";
+import { NavLink } from "react-router";
+
+
 
 /** Shows a list of activities. */
 export default function ActivityList() {
@@ -9,36 +10,21 @@ export default function ActivityList() {
     loading,
     error,
   } = useQuery("/activities", "activities");
-
+  
   if (loading || !activities) return <p>Loading...</p>;
   if (error) return <p>Sorry! {error}</p>;
+
 
   return (
     <ul>
       {activities.map((activity) => (
-        <ActivityListItem key={activity.id} activity={activity} />
+        <li>
+          <NavLink to={`activity-details/${activity.id}`} key={activity.id} activity={activity}>{activity.name}</NavLink>
+        </li>
       ))}
     </ul>
   );
 }
 
 /** Shows a single activity. Logged-in users will also see a delete button. */
-function ActivityListItem({ activity }) {
-  const { token } = useAuth();
-  const {
-    mutate: deleteActivity,
-    loading,
-    error,
-  } = useMutation("DELETE", "/activities/" + activity.id, ["activities"]);
 
-  return (
-    <li>
-      <p>{activity.name}</p>
-      {token && (
-        <button onClick={() => deleteActivity()}>
-          {loading ? "Deleting" : error ? error : "Delete"}
-        </button>
-      )}
-    </li>
-  );
-}
